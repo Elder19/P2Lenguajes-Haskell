@@ -1,0 +1,34 @@
+# Archivos compilados por GHC
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+
+# Ejecutables generados
+Main
+Main.exe
+*.exe
+*.out
+
+# Archivos temporales de compilación
+/dist
+/dist-newstyle
+/.stack-work
+.cabal-sandbox/
+cabal.sandbox.config
+
+# Archivos de editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs o pruebas
+*.log
+*.csv
+*.json
