@@ -1,6 +1,18 @@
--- main.hs
+-- Main.hs
+-- Punto de entrada del Sistema de Análisis de Ventas
+
 module Main where
-import Menu (mainMenu)  -- Importa solo la función necesaria
+
+import Menu (menuPrincipal)
 
 main :: IO ()
-main = mainMenu  -- Ejecuta el menú principal
+main = menuPrincipal
+-- Main.hs
+-- Punto de entrada del Sistema de Análisis de Ventas
+
+module Main where
+
+import Menu (menuPrincipal)
+
+main :: IO ()
+main = menuPrincipal
