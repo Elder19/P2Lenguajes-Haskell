@@ -1,15 +1,21 @@
--- Menu.hs
-
-
+-- Codigo/Menu.hs
 module Menu (menuPrincipal) where
 
 import System.IO (hFlush, stdout)
-import Tipos
 import qualified Importacion as Imp
+
+-- Estado mínimo local para que compile
+data EstadoApp = EstadoApp
+  { estadoVentas :: [()]    
+  , estadoLogs   :: [String]
+  } deriving (Show)
+
+estadoInicial :: EstadoApp
+estadoInicial = EstadoApp [] []
 
 -- | Menú principal del sistema
 menuPrincipal :: IO ()
-menuPrincipal = ciclo (EstadoApp [] [])
+menuPrincipal = ciclo estadoInicial
   where
     ciclo estado = do
       putStrLn "=================================================="

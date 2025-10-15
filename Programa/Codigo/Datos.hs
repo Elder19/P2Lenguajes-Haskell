@@ -1,34 +1,35 @@
--- Tipos.hs
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-
-module Tipos
+module Datos
   ( Venta(..)
-  , Rechazo(..)
-  , EstadoApp(..)
+  , leerVentasJSON
   ) where
 
-import Data.Time (Day)
+import GHC.Generics (Generic)
+import Data.Aeson   (FromJSON, eitherDecodeFileStrict')
+import Data.Time    (Day)
+import System.Directory
+  ( doesFileExist, listDirectory
+  , getCurrentDirectory, canonicalizePath
+  )
+import System.FilePath
+  ( (</>), takeDirectory, takeFileName )
 
--- | Representa una venta cargada desde el archivo JSON.
+-- ====== Tipo ======
 data Venta = Venta
-  { idVenta        :: Int
-  , fecha          :: Day
-  , idProducto     :: Int
-  , nombreProducto :: String
-  , categoria      :: String
-  , cantidad       :: Maybe Int
-  , precioUnitario :: Maybe Double
-  , total          :: Double
-  } deriving (Show, Eq)
+  { venta_id        :: !Int
+  , fecha           :: !Day
+  , producto_id     :: !Int
+  , producto_nombre :: !String
+  , categoria       :: !String
+  , cantidad        :: !(Maybe Double)
+  , precio_unitario :: !(Maybe Double)
+  , total           :: !(Maybe Double)
+  } deriving (Show, Eq, Generic)
 
--- | Registra los errores ocurridos durante la importación.
-data Rechazo = Rechazo
-  { indice :: Int
-  , causa  :: String
-  } deriving (Show, Eq)
+instance FromJSON Venta
 
-
-data EstadoApp = EstadoApp
-  { ventas  :: [Venta]
-  , errores :: [Rechazo]
-  } deriving (Show, Eq)
+-- ====== Lector ======
+leerVentasJSON :: FilePath -> IO (Either String [Venta])
+leerVentasJSON ruta = eitherDecodeFileStrict' ruta
