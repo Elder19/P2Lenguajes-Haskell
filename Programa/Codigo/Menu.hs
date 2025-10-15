@@ -3,21 +3,24 @@ module Menu (menuPrincipal) where
 
 import System.IO (hFlush, stdout)
 import qualified Importacion as Imp
+import qualified ProcesamientoDeDatos as Procesamiento
+import qualified Datos as D 
+import System.Process (callCommand)   
+----se llama para limpiar consola.
+limpiarPantalla :: IO ()
+limpiarPantalla = callCommand "clear"
 
--- Estado mínimo local para que compile
-data EstadoApp = EstadoApp
-  { estadoVentas :: [()]    
-  , estadoLogs   :: [String]
-  } deriving (Show)
 
-estadoInicial :: EstadoApp
-estadoInicial = EstadoApp [] []
+estadoInicial :: D.EstadoApp
+estadoInicial = D.EstadoApp { D.ventas = [], D.errores = [] }
 
 -- | Menú principal del sistema
 menuPrincipal :: IO ()
 menuPrincipal = ciclo estadoInicial
   where
+    ciclo :: D.EstadoApp -> IO ()
     ciclo estado = do
+      limpiarPantalla
       putStrLn "=================================================="
       putStrLn "     SISTEMA DE ANÁLISIS DE DATOS DE VENTAS       "
       putStrLn "=================================================="
@@ -35,7 +38,7 @@ menuPrincipal = ciclo estadoInicial
       putStrLn ""
       case opcion of
         "1" -> Imp.menuImportacion estado >>= ciclo
-        "2" -> mensajePendiente "Procesamiento de datos" >> ciclo estado
+        "2" -> Procesamiento.menuProcesamiento estado >>=ciclo
         "3" -> mensajePendiente "Análisis de datos"      >> ciclo estado
         "4" -> mensajePendiente "Análisis temporal"      >> ciclo estado
         "5" -> mensajePendiente "Búsqueda específica"    >> ciclo estado

@@ -70,6 +70,16 @@
   (major1) == 1 && (major2) <  4 || \
   (major1) == 1 && (major2) == 4 && (minor) <= 301)
 #endif /* MIN_VERSION_filepath */
+/* package process-1.6.19.0 */
+#ifndef VERSION_process
+#define VERSION_process "1.6.19.0"
+#endif /* VERSION_process */
+#ifndef MIN_VERSION_process
+#define MIN_VERSION_process(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  6 || \
+  (major1) == 1 && (major2) == 6 && (minor) <= 19)
+#endif /* MIN_VERSION_process */
 /* package random-1.3.1 */
 #ifndef VERSION_random
 #define VERSION_random "1.3.1"
@@ -171,6 +181,16 @@
   (major1) == 0 && (major2) <  68 || \
   (major1) == 0 && (major2) == 68 && (minor) <= 9)
 #endif /* MIN_TOOL_VERSION_hsc2hs */
+/* tool pkg-config-0.29.2 */
+#ifndef TOOL_VERSION_pkg_config
+#define TOOL_VERSION_pkg_config "0.29.2"
+#endif /* TOOL_VERSION_pkg_config */
+#ifndef MIN_TOOL_VERSION_pkg_config
+#define MIN_TOOL_VERSION_pkg_config(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  29 || \
+  (major1) == 0 && (major2) == 29 && (minor) <= 2)
+#endif /* MIN_TOOL_VERSION_pkg_config */
 /* tool runghc-9.6.7 */
 #ifndef TOOL_VERSION_runghc
 #define TOOL_VERSION_runghc "9.6.7"

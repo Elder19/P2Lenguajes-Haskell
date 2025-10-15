@@ -3,20 +3,19 @@
 
 module Datos
   ( Venta(..)
+  , EstadoApp(..)
+  , Rechazo(..)
   , leerVentasJSON
   ) where
 
 import GHC.Generics (Generic)
 import Data.Aeson   (FromJSON, eitherDecodeFileStrict')
 import Data.Time    (Day)
-import System.Directory
-  ( doesFileExist, listDirectory
-  , getCurrentDirectory, canonicalizePath
-  )
-import System.FilePath
-  ( (</>), takeDirectory, takeFileName )
 
--- ====== Tipo ======
+-- ====== Tipos ======
+data Rechazo = Rechazo Int String
+  deriving (Show, Eq)
+
 data Venta = Venta
   { venta_id        :: !Int
   , fecha           :: !Day
@@ -29,6 +28,11 @@ data Venta = Venta
   } deriving (Show, Eq, Generic)
 
 instance FromJSON Venta
+
+data EstadoApp = EstadoApp
+  { ventas  :: [Venta]
+  , errores :: [Rechazo]
+  } deriving (Show, Eq)
 
 -- ====== Lector ======
 leerVentasJSON :: FilePath -> IO (Either String [Venta])

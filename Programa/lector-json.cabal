@@ -9,6 +9,7 @@ executable ventas
   other-modules:    Menu
                   , Datos
                   , Importacion
+                  , ProcesamientoDeDatos
   default-extensions:
     OverloadedStrings
     DeriveGeneric
@@ -24,6 +25,7 @@ executable ventas
     , vector
     , text
     , random
+    , process >=1.6
 
 
   default-language: Haskell2010
