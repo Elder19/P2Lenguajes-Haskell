@@ -21,6 +21,11 @@ menuPrincipal = ciclo estadoInicial
     ciclo :: D.EstadoApp -> IO ()
     ciclo estado = do
       limpiarPantalla
+      -- 🔹 Mostrar resumen actual
+      putStrLn $ "Datos cargados: " ++ show (length (D.ventas estado)) ++
+                " | Registros con error: " ++ show (length (D.errores estado))
+      putStrLn ""
+      -- 🔹 Menú principal
       putStrLn "=================================================="
       putStrLn "     SISTEMA DE ANÁLISIS DE DATOS DE VENTAS       "
       putStrLn "=================================================="
@@ -38,7 +43,7 @@ menuPrincipal = ciclo estadoInicial
       putStrLn ""
       case opcion of
         "1" -> Imp.menuImportacion estado >>= ciclo
-        "2" -> Procesamiento.menuProcesamiento estado >>=ciclo
+        "2" -> Procesamiento.menuProcesamiento estado >>= ciclo
         "3" -> mensajePendiente "Análisis de datos"      >> ciclo estado
         "4" -> mensajePendiente "Análisis temporal"      >> ciclo estado
         "5" -> mensajePendiente "Búsqueda específica"    >> ciclo estado
@@ -46,6 +51,7 @@ menuPrincipal = ciclo estadoInicial
         "7" -> putStrLn "Saliendo del sistema... ¡Gracias por usar el programa!"
         _   -> putStrLn "Opción no válida. Intente nuevamente." >> ciclo estado
 
+     
 -- | Mensaje temporal para opciones aún no implementadas
 mensajePendiente :: String -> IO ()
 mensajePendiente nombre = do

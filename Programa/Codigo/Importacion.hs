@@ -43,10 +43,13 @@ convertirVenta indiceReg w = do
   idP      <- oblig "producto_id"      vProductoId
   nomP     <- oblig "producto_nombre"  vProdNombre
   cat      <- oblig "categoria"        vCategoria
-  tot      <- oblig "total"            vTotal
-  pure $ Venta idV fechaOk idP nomP cat (fmap fromIntegral (vCantidad w))
-                                       (vPrecioUnit w)
-                                       (Just tot)
+
+  -- cantidad, precio_unitario y total son opcionales
+  let cant = fmap fromIntegral (vCantidad w)
+      precio = vPrecioUnit w
+      tot    = vTotal w
+
+  pure $ Venta idV fechaOk idP nomP cat cant precio tot
   where
     oblig :: String -> (VentaArchivo -> Maybe a) -> Either Rechazo a
     oblig campo getter =
@@ -59,6 +62,14 @@ convertirVenta indiceReg w = do
       case parseTimeM True defaultTimeLocale "%F" texto of
         Just d  -> Right d
         Nothing -> Left (Rechazo indiceReg "Formato de fecha inválido (use yyyy-mm-dd)")
+
+
+-- | Función auxiliar para pausar la consola.
+pause :: IO ()
+pause = do
+  putStr "Presione ENTER para continuar..."
+  _ <- getLine
+  putStrLn ""
 
 menuImportacion :: EstadoApp -> IO EstadoApp
 menuImportacion estado = do
@@ -86,7 +97,9 @@ cargarArchivoJSON ruta estado = do
       putStrLn ("Registros rechazados: " ++ show (length rechazados))
       forM_ rechazados $ \(Rechazo i c) ->
         putStrLn ("   - Registro " ++ show i ++ ": " ++ c)
+      pause
       pure nuevoEstado
+      
   where
     separarResultados :: [Either a b] -> ([a],[b])
     separarResultados =
