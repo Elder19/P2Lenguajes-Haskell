@@ -4,6 +4,9 @@ module Menu (menuPrincipal) where
 import System.IO (hFlush, stdout)
 import qualified Importacion as Imp
 import qualified ProcesamientoDeDatos as Procesamiento
+import qualified AnalisisDatos as AD
+
+
 import qualified Datos as D 
 import System.Process (callCommand)   
 ----se llama para limpiar consola.
@@ -44,7 +47,7 @@ menuPrincipal = ciclo estadoInicial
       case opcion of
         "1" -> Imp.menuImportacion estado >>= ciclo
         "2" -> Procesamiento.menuProcesamiento estado >>= ciclo
-        "3" -> mensajePendiente "Análisis de datos"      >> ciclo estado
+        "3" -> AD.menuAnalisisDatos estado >>= ciclo
         "4" -> mensajePendiente "Análisis temporal"      >> ciclo estado
         "5" -> mensajePendiente "Búsqueda específica"    >> ciclo estado
         "6" -> mensajePendiente "Estadísticas"           >> ciclo estado
