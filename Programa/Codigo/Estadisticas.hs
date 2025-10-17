@@ -50,6 +50,17 @@ productoMasVendido estado = do
   imprimirTabla ["Producto", "Cantidad"]
     [ [producto, show q] | (i, (producto, q)) <- zip [1..] xs ]
 
+
+
+categoriaMenorParticipacion :: D.EstadoApp -> IO ()
+categoriaMenorParticipacion estado = do
+  let mc = sumarPor D.categoria (D.ventas estado)
+      xs = take 1 $ sortOn snd (M.toList mc)
+  putStrLn "Categoría con menor participación:\n"
+  imprimirTabla ["Categoría", "Cantidad"]
+    [ [categoria, show q] | (i, (categoria, q)) <- zip [1..] xs ]
+
+
 -- ===== Menú =====
 menuEstadisticas :: D.EstadoApp -> IO D.EstadoApp
 menuEstadisticas estado = loop
