@@ -41,7 +41,14 @@ top5CategoriasMasVendidas estado = do
   imprimirTabla ["#", "Categoría", "Cantidad"]
     [ [show i, categoria, show q] | (i, (categoria, q)) <- zip [1..] xs ]
 
-
+-- === Producto más vendido ===
+productoMasVendido :: D.EstadoApp -> IO ()
+productoMasVendido estado = do
+  let mp = sumarPor D.producto_nombre (D.ventas estado)
+      xs = take 1 $ reverse $ sortOn snd (M.toList mp)
+  putStrLn "Producto más vendido:\n"
+  imprimirTabla ["Producto", "Cantidad"]
+    [ [producto, show q] | (i, (producto, q)) <- zip [1..] xs ]
 
 -- ===== Menú =====
 menuEstadisticas :: D.EstadoApp -> IO D.EstadoApp
@@ -62,7 +69,7 @@ menuEstadisticas estado = loop
       putStrLn ""
       case op of
         "1" -> top5CategoriasMasVendidas estado >> pausa >> loop
-        "2" -> putStrLn "2"   estado >> pausa >> loop
+        "2" -> productoMasVendido estado >> pausa >> loop
         "3" -> putStrLn "3"   estado >> pausa >> loop
         "4" -> putStrLn "4"           >> pausa >> loop
         "0" -> return estado
