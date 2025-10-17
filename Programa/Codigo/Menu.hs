@@ -5,6 +5,7 @@ import System.IO (hFlush, stdout)
 import qualified Importacion as Imp
 import qualified ProcesamientoDeDatos as Procesamiento
 import qualified AnalisisDatos as AD
+import qualified Estadisticas as Estadisticas
 
 
 import qualified Datos as D 
@@ -48,7 +49,7 @@ menuPrincipal = ciclo estadoInicial
         "1" -> Imp.menuImportacion estado >>= ciclo
         "2" -> Procesamiento.menuProcesamiento estado >>= ciclo
         "3" -> AD.menuAnalisisDatos estado >>= ciclo
-        "4" -> mensajePendiente "Análisis temporal"      >> ciclo estado
+        "4" -> Estadisticas.menuEstadisticas estado >>= ciclo
         "5" -> mensajePendiente "Búsqueda específica"    >> ciclo estado
         "6" -> mensajePendiente "Estadísticas"           >> ciclo estado
         "7" -> putStrLn "Saliendo del sistema... ¡Gracias por usar el programa!"
