@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/elder/.cabal/bin"
-libdir     = "/home/elder/.cabal/lib/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0-inplace-ventas"
-dynlibdir  = "/home/elder/.cabal/lib/x86_64-linux-ghc-9.6.7"
-datadir    = "/home/elder/.cabal/share/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0"
-libexecdir = "/home/elder/.cabal/libexec/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0"
-sysconfdir = "/home/elder/.cabal/etc"
+bindir     = "/home/braslyvm/.cabal/bin"
+libdir     = "/home/braslyvm/.cabal/lib/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0-inplace-ventas"
+dynlibdir  = "/home/braslyvm/.cabal/lib/x86_64-linux-ghc-9.6.7"
+datadir    = "/home/braslyvm/.cabal/share/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0"
+libexecdir = "/home/braslyvm/.cabal/libexec/x86_64-linux-ghc-9.6.7/ventas-0.1.0.0"
+sysconfdir = "/home/braslyvm/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "ventas_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "ventas_libdir")     (\_ -> return libdir)
