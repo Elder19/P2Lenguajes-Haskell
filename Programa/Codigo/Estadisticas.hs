@@ -51,7 +51,6 @@ productoMasVendido estado = do
     [ [producto, show q] | (i, (producto, q)) <- zip [1..] xs ]
 
 
-
 categoriaMenorParticipacion :: D.EstadoApp -> IO ()
 categoriaMenorParticipacion estado = do
   let mc = sumarPor D.categoria (D.ventas estado)
