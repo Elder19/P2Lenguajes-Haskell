@@ -49,3 +49,16 @@ cabal.project.local~*
 
 # Archivos de tu app
 estado.json
+dist/
+dist-newstyle/
+Programa/dist-newstyle/
+.stack-work/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+cabal.project.local
+cabal.project.local~*
+.vscode/
+.idea/
+estado.json
