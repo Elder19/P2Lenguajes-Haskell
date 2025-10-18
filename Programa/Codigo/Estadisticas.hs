@@ -32,32 +32,72 @@ sumarPor f vs =
   let add m v = M.insertWith (+) (f v) (convertidor (D.cantidad v)) m
   in foldl add M.empty vs
 
+sumarMonto :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Double
+sumarMonto f vs =
+  let add m v = M.insertWith (+) (f v) (convertidor (D.total v)) m
+  in foldl add M.empty vs
+
+
 -- === Top 5 categorías más vendidas ===
 top5CategoriasMasVendidas :: D.EstadoApp -> IO ()
 top5CategoriasMasVendidas estado = do
   let mc = sumarPor D.categoria (D.ventas estado)
-      xs = take 5 $ reverse $ sortOn snd (M.toList mc)
+      lista = take 5 $ reverse $ sortOn snd (M.toList mc)
   putStrLn "Top 5 categorías más vendidas:\n"
   imprimirTabla ["#", "Categoría", "Cantidad"]
-    [ [show i, categoria, show q] | (i, (categoria, q)) <- zip [1..] xs ]
+    [ [show i, categoria, show q] | (i, (categoria, q)) <- zip [1..] lista ]
 
 -- === Producto más vendido ===
 productoMasVendido :: D.EstadoApp -> IO ()
 productoMasVendido estado = do
   let mp = sumarPor D.producto_nombre (D.ventas estado)
-      xs = take 1 $ reverse $ sortOn snd (M.toList mp)
+      lista = take 1 $ reverse $ sortOn snd (M.toList mp)
   putStrLn "Producto más vendido:\n"
   imprimirTabla ["Producto", "Cantidad"]
-    [ [producto, show q] | (i, (producto, q)) <- zip [1..] xs ]
+    [ [producto, show q] | (i, (producto, q)) <- zip [1..] lista ]
 
-
+-- == Categoría con menor participación (Cantidad) ===
 categoriaMenorParticipacion :: D.EstadoApp -> IO ()
 categoriaMenorParticipacion estado = do
   let mc = sumarPor D.categoria (D.ventas estado)
-      xs = take 1 $ sortOn snd (M.toList mc)
+      lista = take 1 $ sortOn snd (M.toList mc)
   putStrLn "Categoría con menor participación:\n"
   imprimirTabla ["Categoría", "Cantidad"]
-    [ [categoria, show q] | (i, (categoria, q)) <- zip [1..] xs ]
+    [ [categoria, show q] | (i, (categoria, q)) <- zip [1..] lista ]
+
+
+imprimirVenta :: D.Venta -> IO ()
+imprimirVenta v = do
+  putStrLn $ "ID: "++ show (D.venta_id v)
+  putStrLn $ "Fecha: "++ show (D.fecha v)
+  putStrLn $ "Producto: "++ D.producto_nombre v
+  putStrLn $ "Categoría: "++ D.categoria v
+  putStrLn $ "Cantidad: "++ show (convertidor (D.cantidad v))
+  putStrLn $ "Precio Unitario: "++ show (convertidor (D.precio_unitario v))
+  putStrLn $ "Total: "++ show (convertidor (D.total v))
+
+
+ventaAltaBaja :: D.EstadoApp -> IO ()
+ventaAltaBaja estado = do
+  let mc = sumarMonto D.venta_id (D.ventas estado)
+      lista = take 1 $ reverse $ sortOn snd (M.toList mc)
+      lista2 = take 1 $ sortOn snd (M.toList mc)
+  let [(idMax, _)] = lista
+  let [(idMin, _)] = lista2
+  let ventas = D.ventas estado
+  let filasMayor = head[ v | v <- ventas, D.venta_id v == idMax]
+  let filasMenor = head[ v | v <- ventas, D.venta_id v == idMin]
+  putStrLn "Venta con mayor monto total:\n"
+  imprimirVenta filasMayor
+  putStrLn "\nVenta con menor monto total:\n"
+  imprimirVenta filasMenor
+
+-- === Resumen general ===
+resumenGeneral :: D.EstadoApp -> IO ()
+resumenGeneral estado = do
+  putStrLn "Resumen general de ventas\n"
+  ventaAltaBaja estado
+
 
 
 -- ===== Menú =====
@@ -80,8 +120,8 @@ menuEstadisticas estado = loop
       case op of
         "1" -> top5CategoriasMasVendidas estado >> pausa >> loop
         "2" -> productoMasVendido estado >> pausa >> loop
-        "3" -> putStrLn "3"   estado >> pausa >> loop
-        "4" -> putStrLn "4"           >> pausa >> loop
+        "3" -> categoriaMenorParticipacion estado >> pausa >> loop
+        "4" -> resumenGeneral estado >> pausa >> loop
         "0" -> return estado
         _   -> putStrLn "Opción no válida." >> pausa >> loop
 
