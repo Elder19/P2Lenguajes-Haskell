@@ -1,27 +1,36 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+-- |
+-- Módulo: Datos
+-- Descripción: Define los tipos principales y funciones básicas para manejar la información del sistema.
+--
+-- Contiene las estructuras de datos para las ventas, el estado general de la aplicación
+-- y los registros rechazados, además de una función para cargar los datos desde un archivo JSON.
+
 module Datos
   ( Venta(..)
   , EstadoApp(..)
   , Rechazo(..)
   , leerVentasJSON
-  , ventaId       -- helper
-  , categoria     -- helper (si lo usas en análisis)
-  , fecha         -- reexportar, ya lo tienes en el record
-  , total         -- idem
+  , ventaId
+  , categoria
+  , fecha
+  , total
   ) where
 
 import GHC.Generics (Generic)
 import Data.Aeson   (FromJSON, ToJSON, eitherDecodeFileStrict')
 import Data.Time    (Day)
 
--- ====== Tipos ======
+-- | Representa un registro rechazado con su identificador y motivo.
 data Rechazo = Rechazo Int String
   deriving (Show, Eq, Generic)
 instance ToJSON Rechazo
 instance FromJSON Rechazo
 
+-- | Define la estructura de una venta, incluyendo posibles valores nulos
+-- en cantidad, precio o total.
 data Venta = Venta
   { venta_id        :: !Int
   , fecha           :: !Day
@@ -36,6 +45,7 @@ data Venta = Venta
 instance FromJSON Venta
 instance ToJSON   Venta
 
+-- | Estado general del sistema con las ventas cargadas y los rechazos detectados.
 data EstadoApp = EstadoApp
   { ventas  :: [Venta]
   , errores :: [Rechazo]
@@ -43,13 +53,10 @@ data EstadoApp = EstadoApp
 instance ToJSON   EstadoApp
 instance FromJSON EstadoApp
 
--- ====== Helpers ======
+-- | Obtiene el identificador de una venta.
 ventaId :: Venta -> Int
 ventaId = venta_id
 
--- reexportar campos que ya existen en el record (opcional si los usas cualificados)
--- categoria, fecha, total ya están como campos del record, los “reexportamos” con el nombre.
-
--- ====== Lector ======
+-- | Lee un archivo JSON y devuelve las ventas decodificadas.
 leerVentasJSON :: FilePath -> IO (Either String [Venta])
 leerVentasJSON ruta = eitherDecodeFileStrict' ruta

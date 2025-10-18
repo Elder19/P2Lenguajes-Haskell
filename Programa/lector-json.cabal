@@ -12,9 +12,14 @@ executable ventas
                   , ProcesamientoDeDatos
                   , AnalisisDatos
                   , Estadisticas
+                  ,Persistencia
   default-extensions:
     OverloadedStrings
     DeriveGeneric
+    OverloadedStrings
+    DeriveGeneric
+    DeriveAnyClass
+    ScopedTypeVariables
 
   build-depends:
       base        >=4.17 && <5

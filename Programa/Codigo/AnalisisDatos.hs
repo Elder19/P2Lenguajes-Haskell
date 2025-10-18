@@ -12,8 +12,7 @@ import Data.Foldable (foldl')
 import Data.Time.Calendar (toGregorian, Day)
 import Text.Printf (printf)
 
--- ───────── Utilidades de consola ─────────
-
+-- | Pausa breve para la interfaz de consola.
 pause :: IO ()
 pause = do
   putStrLn "Presione ENTER para continuar..."
@@ -22,38 +21,34 @@ pause = do
   putStrLn ""
   putStrLn ""
 
--- Limpia la consola
+-- | Limpia la pantalla (usa 'clear').
 limpiarPantalla :: IO ()
 limpiarPantalla = callCommand "clear"
 
--- ───────── Total general (opción 1) ─────────
-
--- Asume D.total :: D.Venta -> Maybe Double
+-- | Suma los importes declarados en 'total' (omite 'Nothing').
 totalVentas :: [D.Venta] -> Double
 totalVentas ventas = sum . catMaybes $ map D.total ventas
 
--- ───────── Helpers de fecha (D.fecha :: D.Venta -> Day) ─────────
-
+-- | Extrae (año, mes) desde la fecha de la venta.
 anioMes :: D.Venta -> (Integer, Int)
 anioMes v =
   let (y, m, _d) = toGregorian (D.fecha v)
   in (y, fromIntegral m)
 
+-- | Extrae solo el año de la venta.
 anio :: D.Venta -> Integer
 anio v = let (y, _m, _d) = toGregorian (D.fecha v) in y
 
--- ───────── Acumuladores (opción 2) ─────────
-
--- Suma por (año, mes)
+-- | Totales por (año, mes), en orden cronológico.
 totalesMensuales :: [D.Venta] -> [((Integer, Int), Double)]
 totalesMensuales vs =
   let step acc v = case D.total v of
         Just t  -> M.insertWith (+) (anioMes v) t acc
         Nothing -> acc
       mp = foldl' step M.empty vs
-  in sortOn fst (M.toList mp)  -- orden cronológico ascendente
+  in sortOn fst (M.toList mp)
 
--- Suma por año
+-- | Totales por año, en orden ascendente.
 totalesAnuales :: [D.Venta] -> [(Integer, Double)]
 totalesAnuales vs =
   let step acc v = case D.total v of
@@ -62,23 +57,21 @@ totalesAnuales vs =
       mp = foldl' step M.empty vs
   in sortOn fst (M.toList mp)
 
--- ───────── Render (opción 2) ─────────
-
+-- | Imprime tabla simple de totales mensuales.
 mostrarTotalesMensuales :: [((Integer, Int), Double)] -> IO ()
 mostrarTotalesMensuales xs = do
   putStrLn "=== Totales mensuales ==="
   mapM_ (\((y,m),t) -> putStrLn (printf "%04d-%02d  $%.2f" y m t)) xs
   putStrLn ""
 
+-- | Imprime tabla simple de totales anuales.
 mostrarTotalesAnuales :: [(Integer, Double)] -> IO ()
 mostrarTotalesAnuales xs = do
   putStrLn "=== Totales anuales ==="
   mapM_ (\(y,t) -> putStrLn (printf "%04d      $%.2f" y t)) xs
   putStrLn ""
 
--- ───────── Promedios por categoría por año (opción 3) ─────────
-
--- [( (Año, Categoría), Promedio )]
+-- | Promedio del 'total' por (año, categoría).
 promedioPorCategoriaAnio :: [D.Venta] -> [((Integer, String), Double)]
 promedioPorCategoriaAnio vs =
   let
@@ -95,14 +88,14 @@ promedioPorCategoriaAnio vs =
     toAvg ((y,cat),(s,c)) = ((y,cat), s / fromIntegral c)
   in sortOn fst $ map toAvg (M.toList mp)
 
+-- | Imprime promedio por categoría y año.
 mostrarPromedioPorCategoriaAnio :: [((Integer, String), Double)] -> IO ()
 mostrarPromedioPorCategoriaAnio xs = do
   putStrLn "=== Promedio de ventas por categoría por año ==="
   mapM_ (\((y,cat),avg) -> putStrLn (printf "%04d  %-20s  $%.2f" y cat avg)) xs
   putStrLn ""
 
--- ───────── Menú ─────────
-
+-- | Menú de análisis: totales, agregados por tiempo y promedios por categoría.
 menuAnalisisDatos :: D.EstadoApp -> IO D.EstadoApp
 menuAnalisisDatos estado0 = loop estado0
   where
