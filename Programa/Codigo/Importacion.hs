@@ -67,7 +67,7 @@ convertirVenta indiceReg w = do
 -- | Función auxiliar para pausar la consola.
 pause :: IO ()
 pause = do
-  putStr "Presione ENTER para continuar..."
+  putStrLn "Presione ENTER para continuar..."
   _ <- getLine
   putStrLn ""
 

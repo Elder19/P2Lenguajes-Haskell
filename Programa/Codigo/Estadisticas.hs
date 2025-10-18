@@ -80,7 +80,7 @@ menuEstadisticas estado = loop
       case op of
         "1" -> top5CategoriasMasVendidas estado >> pausa >> loop
         "2" -> productoMasVendido estado >> pausa >> loop
-        "3" -> putStrLn "3"   estado >> pausa >> loop
+        "3" -> categoriaMenorParticipacion  estado >> pausa >> loop
         "4" -> putStrLn "4"           >> pausa >> loop
         "0" -> return estado
         _   -> putStrLn "Opción no válida." >> pausa >> loop
