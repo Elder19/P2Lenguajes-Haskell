@@ -111,3 +111,4 @@ mensajePendiente :: String -> IO ()
 mensajePendiente nombre = do
   putStrLn (">>> Opción '" ++ nombre ++ "' aún no implementada.")
   pause
+

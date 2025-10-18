@@ -128,6 +128,7 @@ cargarArchivoJSON ruta estado = do
                      ++ ", ignorados por duplicado (estado): " ++ show ignoradosEstado
                      ++ ", ignorados por duplicado (): " ++ show ignoradosIntra
                    )
+                   
 
           nuevoEstado = estado
             { ventas  = ventasFinales

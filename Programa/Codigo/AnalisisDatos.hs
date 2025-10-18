@@ -8,6 +8,7 @@ import System.Process (callCommand)
 import Data.Maybe (catMaybes)
 import Data.List  (sortOn)
 import qualified Data.Map.Strict as M
+
 import Data.Foldable (foldl')
 import Data.Time.Calendar (toGregorian, Day)
 import Text.Printf (printf)

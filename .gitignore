@@ -62,3 +62,4 @@ cabal.project.local~*
 .vscode/
 .idea/
 estado.json
+

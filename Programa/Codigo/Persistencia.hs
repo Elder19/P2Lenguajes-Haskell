@@ -31,3 +31,4 @@ cargarEstado = do
 -- | Guarda el estado actual de la aplicación en formato JSON.
 guardarEstado :: D.EstadoApp -> IO ()
 guardarEstado st = BL.writeFile rutaEstado (encode st)
+
