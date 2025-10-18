@@ -12,6 +12,7 @@ executable ventas
                   , ProcesamientoDeDatos
                   , AnalisisDatos
                   , Estadisticas
+                  , Persistencia
   default-extensions:
     OverloadedStrings
     DeriveGeneric
