@@ -32,11 +32,15 @@ sumarPor f vs =
   let add m v = M.insertWith (+) (f v) (convertidor (D.cantidad v)) m
   in foldl add M.empty vs
 
+contar :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Int
+contar f vs =
+  let add m v = M.insertWith (+) (f v) 1 m
+  in foldl add M.empty vs
+
 sumarMonto :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Double
 sumarMonto f vs =
   let add m v = M.insertWith (+) (f v) (convertidor (D.total v)) m
   in foldl add M.empty vs
-
 
 -- === Top 5 categorías más vendidas ===
 top5CategoriasMasVendidas :: D.EstadoApp -> IO ()
@@ -45,7 +49,7 @@ top5CategoriasMasVendidas estado = do
       lista = take 5 $ reverse $ sortOn snd (M.toList mc)
   putStrLn "Top 5 categorías más vendidas:\n"
   imprimirTabla ["#", "Categoría", "Cantidad"]
-    [ [show i, categoria, show q] | (i, (categoria, q)) <- zip [1..] lista ]
+    [ [show i, categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] lista ]
 
 -- === Producto más vendido ===
 productoMasVendido :: D.EstadoApp -> IO ()
@@ -54,7 +58,7 @@ productoMasVendido estado = do
       lista = take 1 $ reverse $ sortOn snd (M.toList mp)
   putStrLn "Producto más vendido:\n"
   imprimirTabla ["Producto", "Cantidad"]
-    [ [producto, show q] | (i, (producto, q)) <- zip [1..] lista ]
+    [ [producto, show cantidad] | (i, (producto, cantidad)) <- zip [1..] lista ]
 
 -- == Categoría con menor participación (Cantidad) ===
 categoriaMenorParticipacion :: D.EstadoApp -> IO ()
@@ -63,7 +67,9 @@ categoriaMenorParticipacion estado = do
       lista = take 1 $ sortOn snd (M.toList mc)
   putStrLn "Categoría con menor participación:\n"
   imprimirTabla ["Categoría", "Cantidad"]
-    [ [categoria, show q] | (i, (categoria, q)) <- zip [1..] lista ]
+    [ [categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] lista ]
+
+
 
 
 imprimirVenta :: D.Venta -> IO ()
@@ -87,15 +93,26 @@ ventaAltaBaja estado = do
   let ventas = D.ventas estado
   let filasMayor = head[ v | v <- ventas, D.venta_id v == idMax]
   let filasMenor = head[ v | v <- ventas, D.venta_id v == idMin]
+  putStrLn "\n"
   putStrLn "Venta con mayor monto total:\n"
   imprimirVenta filasMayor
   putStrLn "\nVenta con menor monto total:\n"
   imprimirVenta filasMenor
 
+
+cantidadVentasCategoria :: D.EstadoApp -> IO ()
+cantidadVentasCategoria estado = do
+  let mc = contar D.categoria (D.ventas estado)
+      lista = sortOn snd (M.toList mc)
+  putStrLn "Cantidad de ventas por categoría:\n"
+  imprimirTabla ["Categoría", "Cantidad de ventas"]
+    [ [categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] lista ]
+
 -- === Resumen general ===
 resumenGeneral :: D.EstadoApp -> IO ()
 resumenGeneral estado = do
   putStrLn "Resumen general de ventas\n"
+  cantidadVentasCategoria estado
   ventaAltaBaja estado
 
 
