@@ -5,9 +5,10 @@ import System.IO (hFlush, stdout)
 import Data.List (sortOn, groupBy)
 import Data.Function (on)
 import qualified Data.Map.Strict as M
+import qualified Data.Set as S 
 
 
--- ===== Utilidades =====
+-- ===== funciones Auxiliares =====
 pausa :: IO ()
 pausa = do
   putStrLn "\nPresione ENTER para continuar..."
@@ -15,32 +16,50 @@ pausa = do
   return ()
 
 
-
+-- | Convierte un Maybe Double a Double, usando 0 para Nothing.
 convertidor :: Maybe Double -> Double
 convertidor = maybe 0 id
 
--- | Imprime una tabla simple en consola (sin cálculos de ancho).
+
+--- | Imprime los detalles de una venta.
+imprimirVenta :: D.Venta -> IO ()
+imprimirVenta v = do
+  putStrLn $ "ID: "++ show (D.venta_id v)
+  putStrLn $ "Fecha: "++ show (D.fecha v)
+  putStrLn $ "Producto: "++ D.producto_nombre v
+  putStrLn $ "Categoría: "++ D.categoria v
+  putStrLn $ "Cantidad: "++ show (convertidor (D.cantidad v))
+  putStrLn $ "Precio Unitario: "++ show (convertidor (D.precio_unitario v))
+  putStrLn $ "Total: "++ show (convertidor (D.total v))
+
+-- | Imprime en consola.
 imprimirTabla :: [String] -> [[String]] -> IO ()
 imprimirTabla headers rows = do
   putStrLn $ unwords headers
   putStrLn "------------------------------------------"
   mapM_ (putStrLn . unwords) rows
 
--- | Agrupa y suma cantidades por clave
+-- | Agrupa (Categoría o Producto) y suma la cantidad o el total.
 sumarPor :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Double
 sumarPor f vs =
   let add m v = M.insertWith (+) (f v) (convertidor (D.cantidad v)) m
   in foldl add M.empty vs
-
+-- | Cuenta ocurrencias de un campo (Categoría).
 contar :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Int
 contar f vs =
   let add m v = M.insertWith (+) (f v) 1 m
   in foldl add M.empty vs
-
+-- | Suma el monto total por clave (ID de venta).
 sumarMonto :: (Ord k) => (D.Venta -> k) -> [D.Venta] -> M.Map k Double
 sumarMonto f vs =
   let add m v = M.insertWith (+) (f v) (convertidor (D.total v)) m
   in foldl add M.empty vs
+
+-- | Calcula la variedad de productos por categoría.
+variedadPorCategoria :: [D.Venta] -> M.Map String (S.Set Int)
+variedadPorCategoria ventas =
+  let agregar mapa venta = M.insertWith S.union (D.categoria venta) (S.singleton (D.producto_id venta)) mapa
+  in foldl agregar M.empty ventas
 
 -- === Top 5 categorías más vendidas ===
 top5CategoriasMasVendidas :: D.EstadoApp -> IO ()
@@ -69,20 +88,7 @@ categoriaMenorParticipacion estado = do
   imprimirTabla ["Categoría", "Cantidad"]
     [ [categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] lista ]
 
-
-
-
-imprimirVenta :: D.Venta -> IO ()
-imprimirVenta v = do
-  putStrLn $ "ID: "++ show (D.venta_id v)
-  putStrLn $ "Fecha: "++ show (D.fecha v)
-  putStrLn $ "Producto: "++ D.producto_nombre v
-  putStrLn $ "Categoría: "++ D.categoria v
-  putStrLn $ "Cantidad: "++ show (convertidor (D.cantidad v))
-  putStrLn $ "Precio Unitario: "++ show (convertidor (D.precio_unitario v))
-  putStrLn $ "Total: "++ show (convertidor (D.total v))
-
-
+-- === Venta con mayor y menor monto total ===
 ventaAltaBaja :: D.EstadoApp -> IO ()
 ventaAltaBaja estado = do
   let mc = sumarMonto D.venta_id (D.ventas estado)
@@ -99,7 +105,7 @@ ventaAltaBaja estado = do
   putStrLn "\nVenta con menor monto total:\n"
   imprimirVenta filasMenor
 
-
+-- === Cantidad de ventas por categoría ===
 cantidadVentasCategoria :: D.EstadoApp -> IO ()
 cantidadVentasCategoria estado = do
   let mc = contar D.categoria (D.ventas estado)
@@ -108,12 +114,24 @@ cantidadVentasCategoria estado = do
   imprimirTabla ["Categoría", "Cantidad de ventas"]
     [ [categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] lista ]
 
+
+-- === Categoría con mayor variedad de productos vendidos ===
+categoriaMayorVariedad :: D.EstadoApp -> IO ()
+categoriaMayorVariedad estado = do
+  let lista  = variedadPorCategoria (D.ventas estado)         
+      cuenta = M.map S.size lista 
+      listaOrdenada  = reverse $ sortOn snd (M.toList cuenta)                                   
+  putStrLn "Categoría con mayor variedad de productos vendidos:\n"
+  imprimirTabla ["#", "Categoría", "VariedadProductos"]
+    [[show i, categoria, show cantidad] | (i, (categoria, cantidad)) <- zip [1..] listaOrdenada ]
+
 -- === Resumen general ===
 resumenGeneral :: D.EstadoApp -> IO ()
 resumenGeneral estado = do
   putStrLn "Resumen general de ventas\n"
   cantidadVentasCategoria estado
   ventaAltaBaja estado
+  categoriaMayorVariedad estado
 
 
 
