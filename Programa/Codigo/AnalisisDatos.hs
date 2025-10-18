@@ -14,6 +14,7 @@ import Data.Time.Calendar (toGregorian, Day)
 import Text.Printf (printf)
 
 -- | Pausa breve para la interfaz de consola.
+
 pause :: IO ()
 pause = do
   putStrLn "Presione ENTER para continuar..."
