@@ -41,3 +41,5 @@ menuAnalisisDatos estado0 = loop estado0
           putStrLn "Opción no válida."
           pause
           loop est
+
+          
