@@ -32,3 +32,20 @@ Thumbs.db
 *.log
 *.csv
 *.json
+# Cabal/Stack
+dist/
+dist-newstyle/
+.stack-work/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+cabal.project.local
+cabal.project.local~*
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Archivos de tu app
+estado.json
