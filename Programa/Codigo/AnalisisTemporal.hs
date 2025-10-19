@@ -56,3 +56,24 @@ mesConMayorVenta estado = do
       putStrLn $ "Total vendido: " ++ show total
 
 -- Funcionalidad de mes --
+-- Funcionalidad dia de la semana --
+
+-- Calcula la cantidad de ventas por día de la semana
+ventasPorDiaSemana :: [D.Venta] -> M.Map DayOfWeek Int
+ventasPorDiaSemana = foldl agregar M.empty
+  where
+    agregar mapa v =
+      let dia = dayOfWeek (D.fecha v)
+      in M.insertWith (+) dia 1 mapa
+
+-- Muestra el día más activo en español
+diaMasActivo :: D.EstadoApp -> IO ()
+diaMasActivo estado = do
+  let conteo = ventasPorDiaSemana (D.ventas estado)
+      lista = reverse $ sortOn snd (M.toList conteo)
+  case lista of
+    [] -> putStrLn "No hay ventas registradas."
+    ((dia, cant) : _) ->
+      putStrLn $ "Día más activo: " ++ diaSemanaEsp dia ++ " con " ++ show cant ++ " transacciones."
+
+-- Funcionalidad dia de la semana --
