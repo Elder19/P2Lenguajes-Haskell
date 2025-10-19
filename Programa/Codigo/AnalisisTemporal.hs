@@ -33,3 +33,26 @@ diaSemanaEsp dia = case dia of
   Saturday  -> "Sábado"
   Sunday    -> "Domingo"
 -- Auxiliares --
+--Funcionalidad de mes --
+
+-- Agrupa ventas por mes
+ventasPorMes :: [D.Venta] -> M.Map (Integer, Int) Double
+ventasPorMes = foldl agregar M.empty
+  where
+    agregar mapa v =
+      case D.total v of
+        Just t  -> M.insertWith (+) (mesYAnio (D.fecha v)) t mapa
+        Nothing -> mapa
+
+mesConMayorVenta :: D.EstadoApp -> IO ()
+mesConMayorVenta estado = do
+  let ventas = D.ventas estado
+      totalesMes = ventasPorMes ventas
+      listaOrdenada = reverse $ sortOn snd (M.toList totalesMes)
+  case listaOrdenada of
+    [] -> putStrLn "No hay ventas registradas."
+    (( (anio, mes), total) : _) -> do
+      putStrLn $ "Mes con mayor venta total: " ++ show mes ++ "/" ++ show anio
+      putStrLn $ "Total vendido: " ++ show total
+
+-- Funcionalidad de mes --
