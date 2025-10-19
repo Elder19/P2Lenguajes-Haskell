@@ -88,9 +88,11 @@ menuPrincipal = do
         -- Análisis (solo lectura); no persiste cambios
         "3" -> conVentas estado (AD.menuAnalisisDatos estado) >>= ciclo
 
-        -- Placeholders de futuras funciones
-        "4" -> conVentas estado (mensajePendiente "Análisis temporal" >> return estado) >>= ciclo
-        "5" -> conVentas estado (mensajePendiente "Búsqueda específica" >> return estado) >>= ciclo
+        -- Analisis Temporal (Solo lectura); no persiste cambios
+        "4" -> conVentas estado (AT.menuAnalisisTemporal estado) >>= ciclo
+
+        -- Busqueda especifica por cambio de fechas (Solo lectura); no persiste cambios
+        "5" -> conVentas estado (BE.menuBusquedaEspecifica estado) >>= ciclo
 
         -- Estadísticas (puede modificar estado), persiste
         "6" -> conVentas estado (Estadisticas.menuEstadisticas estado) >>= \est' -> do
