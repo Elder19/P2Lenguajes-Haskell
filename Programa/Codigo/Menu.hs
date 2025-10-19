@@ -8,8 +8,10 @@ import System.IO (hFlush, stdout)
 import qualified Importacion as Imp
 import qualified ProcesamientoDeDatos as Procesamiento
 import qualified AnalisisDatos as AD
+import qualified AnalisisTemporal as AT
 import qualified Estadisticas as Estadisticas
 import qualified Datos as D
+import qualified BusquedaEspecifica as BE
 import System.Process (callCommand)
 import Persistencia (cargarEstado, guardarEstado)
 
