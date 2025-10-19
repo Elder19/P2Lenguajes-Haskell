@@ -127,3 +127,41 @@ resumenTrimestral estado = do
   mapM_ (\((a,t),v) -> putStrLn $ show a ++ " - Trimestre " ++ show t ++ ": " ++ show v) lista
 
 -- Funcionalidad trimestres --
+-- Menu --
+
+menuAnalisisTemporal :: D.EstadoApp -> IO D.EstadoApp
+menuAnalisisTemporal estado = loop
+  where
+    loop = do
+      putStrLn "==============================================="
+      putStrLn "          MENÚ DE ANÁLISIS TEMPORAL            "
+      putStrLn "==============================================="
+      putStrLn "1) Mes con mayor venta total"
+      putStrLn "2) Día de la semana más activo"
+      putStrLn "3) Tasa de crecimiento trimestral"
+      putStrLn "4) Resumen por trimestre"
+      putStrLn "0) Volver"
+      putStr   "Seleccione una opción: "
+      hFlush stdout
+      op <- getLine
+      case op of
+        "1" -> mesConMayorVenta estado >> pausa >> loop
+        "2" -> diaMasActivo estado >> pausa >> loop
+        "3" -> do
+          putStr "Ingrese el año a analizar: "
+          hFlush stdout
+          input <- getLine
+          case readMaybe input :: Maybe Integer of
+            Just y  -> tasaCrecimientoTrimestral estado y
+                      >> pausa
+                      >> loop
+            Nothing -> putStrLn "Entrada inválida. Por favor ingrese un número válido."
+                      >> pausa
+                      >> loop
+
+        "4" -> resumenTrimestral estado >> pausa >> loop
+        "0" -> return estado
+        _   -> putStrLn "Opción no válida." >> pausa >> loop
+
+pausa :: IO ()
+pausa = putStrLn "\nPresione ENTER para continuar..." >> getLine >> return ()
