@@ -77,3 +77,53 @@ diaMasActivo estado = do
       putStrLn $ "Día más activo: " ++ diaSemanaEsp dia ++ " con " ++ show cant ++ " transacciones."
 
 -- Funcionalidad dia de la semana --
+-- Funcionalidad trimestres --
+
+-- Calcula ventas por trimestre
+ventasPorTrimestre :: [D.Venta] -> M.Map (Integer, Int) Double
+ventasPorTrimestre = foldl agregar M.empty
+  where
+    agregar mapa v =
+      case D.total v of
+        Just t  -> 
+          let (anio, mes, _) = toGregorian (D.fecha v)
+              tri = trimestre mes
+          in M.insertWith (+) (anio, tri) t mapa
+        Nothing -> mapa
+
+
+-- Calcula tasas de crecimiento entre trimestres consecutivos
+calcularTasas :: [(Int, Double)] -> IO ()
+calcularTasas [] = return ()
+calcularTasas [_] = return ()
+calcularTasas ((t1,v1):(t2,v2):rest) = do
+  if v1 == 0
+    then putStrLn $ "Trimestre " ++ show t1 ++ " -> " ++ show t2 ++ ": No se puede calcular tasa (ventas trimestre " ++ show t1 ++ " = 0)"
+    else putStrLn $ "Trimestre " ++ show t1 ++ " -> " ++ show t2 ++ ": " ++ show (((v2 - v1) / v1) * 100) ++ "%"
+  calcularTasas ((t2,v2):rest)
+
+-- Función principal para análisis trimestral
+tasaCrecimientoTrimestral :: D.EstadoApp -> Integer -> IO ()
+tasaCrecimientoTrimestral estado anio = do
+  let mapa = ventasPorTrimestre (D.ventas estado)
+      trimestres = [1..4]
+      ventasAnio = [(t, M.findWithDefault 0 (anio,t) mapa) | t <- trimestres]
+
+  if all ((==0) . snd) ventasAnio
+    then putStrLn $ "No hay ventas registradas para el año " ++ show anio
+    else do
+      putStrLn $ "\nVentas por trimestre para el año " ++ show anio ++ ":"
+      mapM_ (\(t,v) -> putStrLn $ "Trimestre " ++ show t ++ ": " ++ show v) ventasAnio
+
+      putStrLn "\nTasas de crecimiento entre trimestres:"
+      calcularTasas ventasAnio
+
+-- Resumen por trimestre
+resumenTrimestral :: D.EstadoApp -> IO ()
+resumenTrimestral estado = do
+  let mapa = ventasPorTrimestre (D.ventas estado)
+      lista = sortOn fst (M.toList mapa)
+  putStrLn "Resumen de ventas por trimestre:\n"
+  mapM_ (\((a,t),v) -> putStrLn $ show a ++ " - Trimestre " ++ show t ++ ": " ++ show v) lista
+
+-- Funcionalidad trimestres --
