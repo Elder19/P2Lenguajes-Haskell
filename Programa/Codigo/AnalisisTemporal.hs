@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module AnalisisTemporal (menuAnalisisTemporal) where
+
 import qualified Datos as D
 import Data.Maybe (fromMaybe)
 import Data.Time (Day, toGregorian, dayOfWeek, DayOfWeek(..))
@@ -8,8 +9,11 @@ import Data.List (sortOn)
 import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 
--- Auxiliares --
--- Devuelve el trimestre según el mes
+-- =====================================
+-- AUXILIARES
+-- =====================================
+
+-- Determina el trimestre según el mes
 trimestre :: Int -> Int
 trimestre mes
   | mes <= 3  = 1
@@ -23,6 +27,7 @@ mesYAnio fecha =
   let (anio, mes, _) = toGregorian fecha
   in (anio, mes)
 
+-- Traduce los días de la semana al español
 diaSemanaEsp :: DayOfWeek -> String
 diaSemanaEsp dia = case dia of
   Monday    -> "Lunes"
@@ -32,8 +37,8 @@ diaSemanaEsp dia = case dia of
   Friday    -> "Viernes"
   Saturday  -> "Sábado"
   Sunday    -> "Domingo"
--- Auxiliares --
---Funcionalidad de mes --
+
+-- Funcionalidad de mes --
 
 -- Agrupa ventas por mes
 ventasPorMes :: [D.Venta] -> M.Map (Integer, Int) Double
@@ -44,21 +49,9 @@ ventasPorMes = foldl agregar M.empty
         Just t  -> M.insertWith (+) (mesYAnio (D.fecha v)) t mapa
         Nothing -> mapa
 
-mesConMayorVenta :: D.EstadoApp -> IO ()
-mesConMayorVenta estado = do
-  let ventas = D.ventas estado
-      totalesMes = ventasPorMes ventas
-      listaOrdenada = reverse $ sortOn snd (M.toList totalesMes)
-  case listaOrdenada of
-    [] -> putStrLn "No hay ventas registradas."
-    (( (anio, mes), total) : _) -> do
-      putStrLn $ "Mes con mayor venta total: " ++ show mes ++ "/" ++ show anio
-      putStrLn $ "Total vendido: " ++ show total
+-- Funcionalidad del dia de la semana
 
--- Funcionalidad de mes --
--- Funcionalidad dia de la semana --
-
--- Calcula la cantidad de ventas por día de la semana
+-- Calcula cantidad de ventas por día de la semana
 ventasPorDiaSemana :: [D.Venta] -> M.Map DayOfWeek Int
 ventasPorDiaSemana = foldl agregar M.empty
   where
@@ -66,40 +59,50 @@ ventasPorDiaSemana = foldl agregar M.empty
       let dia = dayOfWeek (D.fecha v)
       in M.insertWith (+) dia 1 mapa
 
--- Muestra el día más activo en español
-diaMasActivo :: D.EstadoApp -> IO ()
-diaMasActivo estado = do
-  let conteo = ventasPorDiaSemana (D.ventas estado)
-      lista = reverse $ sortOn snd (M.toList conteo)
-  case lista of
-    [] -> putStrLn "No hay ventas registradas."
-    ((dia, cant) : _) ->
+-- Funcionalidad de mes y dia activo
+
+mesYDiaMasActivo :: D.EstadoApp -> IO ()
+mesYDiaMasActivo estado = do
+  let ventas = D.ventas estado
+      totalesMes = ventasPorMes ventas
+      listaMeses = reverse $ sortOn snd (M.toList totalesMes)
+      conteoDias = ventasPorDiaSemana ventas
+      listaDias = reverse $ sortOn snd (M.toList conteoDias)
+
+  case (listaMeses, listaDias) of
+    ([], _) -> putStrLn "No hay ventas registradas."
+    (_, []) -> putStrLn "No hay ventas registradas."
+    (((anio, mes), total) : _, (dia, cant) : _) -> do
+      putStrLn $ "Mes con mayor venta total: " ++ show mes ++ "/" ++ show anio
+      putStrLn $ "Total vendido: " ++ show total
       putStrLn $ "Día más activo: " ++ diaSemanaEsp dia ++ " con " ++ show cant ++ " transacciones."
 
--- Funcionalidad dia de la semana --
--- Funcionalidad trimestres --
+-- Funcionalidad de Trimestres --
 
--- Calcula ventas por trimestre
 ventasPorTrimestre :: [D.Venta] -> M.Map (Integer, Int) Double
 ventasPorTrimestre = foldl agregar M.empty
   where
     agregar mapa v =
       case D.total v of
-        Just t  -> 
+        Just t  ->
           let (anio, mes, _) = toGregorian (D.fecha v)
               tri = trimestre mes
           in M.insertWith (+) (anio, tri) t mapa
         Nothing -> mapa
-
 
 -- Calcula tasas de crecimiento entre trimestres consecutivos
 calcularTasas :: [(Int, Double)] -> IO ()
 calcularTasas [] = return ()
 calcularTasas [_] = return ()
 calcularTasas ((t1,v1):(t2,v2):rest) = do
-  if v1 == 0
-    then putStrLn $ "Trimestre " ++ show t1 ++ " -> " ++ show t2 ++ ": No se puede calcular tasa (ventas trimestre " ++ show t1 ++ " = 0)"
-    else putStrLn $ "Trimestre " ++ show t1 ++ " -> " ++ show t2 ++ ": " ++ show (((v2 - v1) / v1) * 100) ++ "%"
+  if v1 == 0 && v2 == 0 then
+    putStrLn $ "Trimestre " ++ show t1 ++ " → " ++ show t2 ++ ": No hay ventas en ambos trimestres"
+  else if v2 == 0 then
+    putStrLn $ "Trimestre " ++ show t1 ++ " → " ++ show t2 ++ ": No hay ventas en trimestre " ++ show t2
+  else if v1 == 0 then
+    putStrLn $ "Trimestre " ++ show t1 ++ " → " ++ show t2 ++ ": No se puede calcular tasa (ventas trimestre " ++ show t1 ++ " = 0)"
+  else
+    putStrLn $ "Trimestre " ++ show t1 ++ " → " ++ show t2 ++ ": " ++ show (((v2 - v1) / v1) * 100) ++ "%"
   calcularTasas ((t2,v2):rest)
 
 -- Función principal para análisis trimestral
@@ -126,9 +129,7 @@ resumenTrimestral estado = do
   putStrLn "Resumen de ventas por trimestre:\n"
   mapM_ (\((a,t),v) -> putStrLn $ show a ++ " - Trimestre " ++ show t ++ ": " ++ show v) lista
 
--- Funcionalidad trimestres --
 -- Menu --
-
 menuAnalisisTemporal :: D.EstadoApp -> IO D.EstadoApp
 menuAnalisisTemporal estado = loop
   where
@@ -136,18 +137,16 @@ menuAnalisisTemporal estado = loop
       putStrLn "==============================================="
       putStrLn "          MENÚ DE ANÁLISIS TEMPORAL            "
       putStrLn "==============================================="
-      putStrLn "1) Mes con mayor venta total"
-      putStrLn "2) Día de la semana más activo"
-      putStrLn "3) Tasa de crecimiento trimestral"
-      putStrLn "4) Resumen por trimestre"
+      putStrLn "1) Mes con mayor venta total y día más activo"
+      putStrLn "2) Tasa de crecimiento trimestral"
+      putStrLn "3) Resumen por trimestre"
       putStrLn "0) Volver"
       putStr   "Seleccione una opción: "
       hFlush stdout
       op <- getLine
       case op of
-        "1" -> mesConMayorVenta estado >> pausa >> loop
-        "2" -> diaMasActivo estado >> pausa >> loop
-        "3" -> do
+        "1" -> mesYDiaMasActivo estado >> pausa >> loop
+        "2" -> do
           putStr "Ingrese el año a analizar: "
           hFlush stdout
           input <- getLine
@@ -158,10 +157,10 @@ menuAnalisisTemporal estado = loop
             Nothing -> putStrLn "Entrada inválida. Por favor ingrese un número válido."
                       >> pausa
                       >> loop
-
-        "4" -> resumenTrimestral estado >> pausa >> loop
+        "3" -> resumenTrimestral estado >> pausa >> loop
         "0" -> return estado
         _   -> putStrLn "Opción no válida." >> pausa >> loop
+
 
 pausa :: IO ()
 pausa = putStrLn "\nPresione ENTER para continuar..." >> getLine >> return ()
