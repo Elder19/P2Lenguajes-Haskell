@@ -1,0 +1,20 @@
+Nombre del curso
+	- Lenguajes de programación
+Número de semestre y año lectivo
+	- II semestre del 2025
+Nombre de los Estudiante
+	- Elder León Pérez
+	- Owen Torres Porras
+	- Brasly villarebia Morales
+
+Número de carnet de los estudiantes
+	- 2023166120
+	- 2023302034
+	- 2023105915
+
+Número de proyecto programado
+	- Proyecto #2
+Fecha de entrega
+	- 17 de octubre del 2025
+Estatus de la entrega (debe ser CONGRUENTE con la solución entregada):
+	- Excelente
