@@ -9,10 +9,7 @@ import Data.List (sortOn)
 import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 
--- =====================================
--- AUXILIARES
--- =====================================
-
+-- Auxiliares --
 -- Determina el trimestre según el mes
 trimestre :: Int -> Int
 trimestre mes
